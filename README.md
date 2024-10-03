@@ -50,7 +50,8 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
  - To change your player's "name" in OneShot, simply type the desired name into the textbox to the right of the "Set Player Name" button, then press said button.
 
 ## Installation/Necessary Files
-OneShot Utility v3.3 will create up to three elements:
-- A "customsaves" folder in the same directory as the .exe, which will store any created custom saves
-- A "customsaves.json" file in OneShot's save directory (%appdata%\Roaming\Oneshot\), which stores relevant data for custom saves to function
-- A "safepath.txt" file in OneShot's save directory, which stores the location of DOCUMENT.oneshot.txt, if said file does not exist in expected default locations
+OneShot Utility v3.3 will create up to four elements, all in OneShot's save directory (%appdata%\Roaming\Oneshot\)
+- "customsaves", a folder that stores any created custom saves
+- "customsaves.json", a file that stores relevant data for custom saves to function
+- "safepath.txt", which stores the location of DOCUMENT.oneshot.txt, if said file does not exist in expected default locations
+- "loadstate.txt", an empty text file that allows the program to remember the user's auto-loading preference on startup
