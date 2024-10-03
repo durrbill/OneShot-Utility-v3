@@ -35,6 +35,8 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
 ### Toggling the auto-load feature
  - Located above the safe code checker is a checkbox. If checked, the utility will automatically close OneShot (if open), and reopen OneShot, with the new custom save loaded. This allows for near uninterrupted repeated practice of difficult segments. This feature also enables the "Full Reset" buttons to close OneShot, wipe your save to Any% or NG+, and reopen to the title screen to reset a run quicky.
 
+     ![safedem](https://github.com/user-attachments/assets/5ef9165a-f528-4015-bc02-ae5a891f5c40)
+
 
 ### Exporting and Importing Custom "savepacks"
  - The "Export Saves" and "Import Saves" buttons, respectively, export your current list of custom saves, and import already created lists of custom saves.
