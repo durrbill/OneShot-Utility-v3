@@ -4,11 +4,12 @@ from os import listdir
 from pathlib import Path
 from zipfile import ZipFile
 from os.path import isfile, join
+from fontTools.misc.textTools import safeEval
 from win32com.client import Dispatch
 from tkinter import filedialog, ttk, simpledialog, Tk, END, Toplevel, StringVar
 from rubymarshal.reader import load as rb_load
 from rubymarshal.writer import write as rb_write
-from tkinter.filedialog import askopenfilename as openfile
+from tkinter.filedialog import askopenfilename as openfile, asksaveasfilename as savefile
 from tkinter.messagebox import showinfo as msgbox, showwarning as warnbox
 
 # Frame and variable assignments
@@ -17,22 +18,17 @@ savepath = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming' '\\Oneshot
 root.resizable(False, False)
 root.rowconfigure(0, weight=1)
 root.columnconfigure(0, weight=1)
-root.title("OneShot Utility v3.3")
+root.title("OneShot Utility v3.3.1")
 customsavepath = savepath + "\\customsaves\\"
-shortpath = r"C:\Program Files (x86)\Steam\steamapps\common\OneShot\oscut.lnk"
-shorttarget = r"C:\Program Files (x86)\Steam\steamapps\common\OneShot\steamshim.exe"
-shell = Dispatch('WScript.Shell')
-shortcut = shell.CreateShortCut(shortpath)
-shortcut.Targetpath = shorttarget
-shortcut.save()
 root.iconbitmap(os.path.join(getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__))), r"ico\icon.ico"))
+psettings_path = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming' '\Oneshot' '\p-settings.dat')
 
 mainframe = ttk.Frame(root, padding="3 3 3 3")
 mainframe.grid(column=0, row=0, sticky="nsew")
 saveframe = ttk.Frame(root, padding="3 3 3 3")
 saveframe.grid(column=1, row=0, sticky="nsew")
-infolabel = (ttk.Label(mainframe, relief='sunken', text="OneShot Utility v3.3", padding="4 3 3 3", width=24))
-infolabel.grid(sticky="nsew")
+infolabel = (ttk.Label(mainframe, relief='sunken', text="OneShot Utility v3.3.1", padding="4 3 3 3", width=24))
+infolabel.grid(sticky="nsew", columnspan=2)
 safecode = ttk.Label(mainframe, text="000000", font=('System', 40))
 safecode.grid(row=7, column=0, columnspan=2, rowspan=2)
 clovercheck = ttk.Label(mainframe, text="Clover: idk", font=('System', 20))
@@ -40,35 +36,44 @@ clovercheck.grid(row=9, column=0, columnspan=2, rowspan=1, sticky="n")
 namebox = ttk.Entry(mainframe, width=16)
 namebox.grid(row=4, column=1, columnspan=1, rowspan=1)
 
-try:  # Checks to see if p-settings.dat exists, which is required for the utility to function
-    infolabel.grid(row=0, column=0, columnspan=3)
-    psettingsPath = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming', 'Oneshot', 'p-settings.dat')
-except FileNotFoundError:
-    warnbox("Error", "p-settings.dat not found. Ensure you have run OneShot at least once.")
-    sys.exit()
+def check_psettings():  # Checks to see if p-settings.dat exists, which is required for the utility to function
+    if not os.path.exists(os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming', 'Oneshot', 'p-settings.dat')):
+        warnbox("Error", "p-settings.dat not found. Ensure you have run OneShot at least once.")
+        sys.exit()
 
-
-def auto_load():  # When called, toggles whether OneShot is automatically restarted upon selecting a save
-    global autoload
-    delete_mode(False)
-    if autoload:
-        infolabel["text"] = "Auto-load on save select: off"
-        autoload = False
-        os.remove(savepath + r"\loadstate.txt")
+def check_steamshim():
+    if os.path.exists(r"C:\Program Files (x86)\Steam\steamapps\common\OneShot\steamshim.exe"):
+        return r"C:\Program Files (x86)\Steam\steamapps\common\OneShot\steamshim.exe"
+    elif os.path.exists(savepath + r"\steamshimlocation.txt"):
+        return open(savepath + r"\steamshimlocation.txt", "r").readline()
     else:
-        infolabel["text"] = "Auto-load on save select: on"
-        autoload = True
-        open(savepath + r"\loadstate.txt", 'x')
+        msgbox("Error",
+               "steamshim.exe not found. Please locate steamshim.exe in your OneShot installation folder.\n\n"
+               "Note that this is typically located in C:/Program Files (x86)/Steam/steamapps/common/OneShot")
+        shorttargetbase = openfile(filetypes=[("Executable File", ".exe")])
+        with open(savepath + r"\steamshimlocation.txt", "w+") as steamshimloc:
+            steamshimloc.write(shorttargetbase)
+            return steamshimloc.readline()
 
 
-if os.path.exists(savepath + r"\loadstate.txt"):  # Toggles autoloading on or off on program open
-    autoload = True
-    autobutton.set(1)
-else:
-    autoload = False
-    autobutton.set(0)
+def autoload_toggle(change):  # When called, globally toggles the state of autoloading via checking for an empty .txt file
+    if os.path.exists(savepath + r"\loadstate.txt"):
+        if change == 1:
+            os.remove(savepath + r"\loadstate.txt")
+            infolabel["text"] = "Auto-load on save select: off"
+            return
+        return True
+    else:
+        if change == 1:
+            open(savepath + r"\loadstate.txt", "x")
+            infolabel["text"] = "Auto-load on save select: on"
+            return
+        return False
 
-loadbtn = ttk.Checkbutton(mainframe, text="Close/Open game on save load?", command=auto_load, onvalue=1, offvalue=0, padding="0 5 0 0", variable=autobutton)
+# Creates the autoload checkbox and checks its last known state
+if autoload_toggle(0): autobutton.set(1)
+elif not autoload_toggle(0): autobutton.set(0)
+loadbtn = ttk.Checkbutton(mainframe, text="Close/Open game on save load?", command=lambda: autoload_toggle(1), onvalue=1, offvalue=0, padding="0 5 0 0", variable=autobutton)
 loadbtn.grid(row=6, column=0, columnspan=2)
 
 
@@ -77,13 +82,13 @@ def make_basebutton(txt, cmd, clm, row):  # Creates buttons used for basic funct
 
 
 def set_psettings(pdata):  # Function to edit p-settings.dat
-    with open(psettingsPath, 'wb') as psettings:
+    with open(psettings_path, "wb") as psettings:
         for d in pdata:
             rb_write(psettings, d)
 
 
 def get_psettings():  # Function to read p-settings.dat
-    with open(psettingsPath, 'rb') as psettings:
+    with open(psettings_path, 'rb') as psettings:
         s = [rb_load(psettings), rb_load(psettings), rb_load(psettings)]
         return s
 
@@ -130,7 +135,7 @@ def check_program(prog):  # Checks to see if the specified program (oneshot.exe 
 
 
 def about():  # Displays info about the program
-    msgbox("About", "OneShot Utility v3.3 by durrbill\nSome code from Firestrike and hunternet93\n\n"
+    msgbox("About", "OneShot Utility v3.3.1 by durrbill\nSome code from Firestrike and hunternet93\n\n"
                     "For help with utility, visit https://github.com/durrbill/OneShot-Utility-v3")
     delete_mode(False)
 
@@ -138,8 +143,8 @@ def about():  # Displays info about the program
 def restart_game():  # Force closes OneShot.exe and reopens it
     for pid in (process.pid for process in psutil.process_iter() if process.name() == "oneshot.exe"):
         os.kill(pid, signal.SIGABRT)
-    os.chdir(r"C:\Program Files (x86)\Steam\steamapps\common\OneShot\\")
-    os.startfile(shortpath)
+    os.chdir(str(check_steamshim().split("steamshim.exe")[0]))
+    os.startfile(check_steamshim().split("steamshim.exe")[0] + r"\oscut.lnk")
 
 
 def game_reset(reset_type):  # Resets the game to the specified state
@@ -150,14 +155,14 @@ def game_reset(reset_type):  # Resets the game to the specified state
 
     if reset_type == "full":
         data[0][1] = False
-        if not autoload:
+        if not autoload_toggle(0):
             infolabel["text"] = "Game reset to Any%"
         else:
             infolabel["text"] = "Any% run reset"
             restart_game()
     elif reset_type == "sol":
         data[0][1] = True
-        if not autoload:
+        if not autoload_toggle(0):
             infolabel["text"] = "Game reset to NG+"
         else:
             infolabel["text"] = "NG+ run reset"
@@ -173,36 +178,35 @@ def import_saves():  # Imports .zip savepacks created by the utility
     importfile = openfile(filetypes=[("Zip Archives", ".zip")])
     with zipfile.ZipFile(importfile, 'r') as zip_file:
         file_list = zip_file.namelist()
-        if 'customsaves.json' in file_list:
+        if "customsaves.json" in file_list:
             try: shutil.rmtree(customsavepath)
             except FileNotFoundError: pass
             btnlist = saveframe.grid_slaves()
             for li in btnlist: li.destroy()
             with zipfile.ZipFile(importfile, 'r') as zip_ref:
-                zip_ref.extract('customsaves.json', savepath)
+                zip_ref.extract("customsaves.json", savepath)
                 for file in zip_ref.namelist():
-                    if file.startswith('customsaves'):
+                    if file.startswith("customsaves"):
                         zip_ref.extract(file, savepath)
             check_for_saves()
             zipname = importfile.split("/")[-1]
             infolabel["text"] = f"Imported {zipname}"
         else:
-            warnbox("Error", "Invalid .zip. Ensure the chosen .zip was created by OneShot Utility v3.3.")
+            warnbox("Error", "Invalid .zip. Ensure the chosen .zip was created by OneShot Utility v3.3.1.")
 
 
 def export_saves():  # Exports current saves into a .zip savepack which can be imported later
     delete_mode(False)
     if not len(os.listdir(customsavepath)) == 0:
-        with ZipFile('exportedsaves.zip', 'w') as zip_obj:
+        savepack_loc = savefile(filetypes=[("Zip Archives", ".zip")])
+        with ZipFile(savepack_loc + ".zip", "w") as zip_obj:
             saveslist = glob.glob(f"{customsavepath}*")
             src = Path(savepath)
-            file = Path(savepath + '\\customsaves.json')
+            file = Path(savepath + "\\customsaves.json")
             for i in saveslist:
                 zip_obj.write(i, arcname=Path(i).relative_to(src))
             zip_obj.write(file, arcname=file.relative_to(src))
-            if os.path.exists('exportedsaves.zip'):
-                msgbox("Export Saves", "Saves exported to exportedsaves.zip successfully.\n\n"
-                                       "Rename the new .zip file if you wish to share your saves with others.")
+            infolabel["text"] = "Saves exported successfully"
     else:
         warnbox("Export Saves", r"Export failed. Ensure you have custom saves present in a customsaves folder.")
 
@@ -263,9 +267,8 @@ def set_save(newsave):  # Called when a save button is pressed, can either load 
         if os.path.exists(savepath + "/" + "save.dat"):
             os.remove(savepath + "/save.dat")
         os.rename(savepath + "/" + newsave + ".dat", savepath + "/save.dat")
-        if autoload:
+        if autoload_toggle(0):
             restart_game()
-
 
     else:
         infolabel["text"] = "DELETE MODE: Choose a save to remove"
@@ -307,46 +310,46 @@ def check_for_saves():  # Updates custom save list when the program is opened, o
                 else:
                     row_override = int(i)
                 ttk.Button(saveframe, text=str(savesdict[str(int(i) + 1)]), width=18,
-                           command=lambda i=i: set_save(savesdict[str(int(i) + 1)])
+                           command=lambda i = i: set_save(savesdict[str(int(i) + 1)])
                            ).grid(column=2 + int(column_override), row=row_override, sticky="nw")
 
 
-def safe_code():  # Checks default locations of DOCUMENT.oneshot.txt, otherwise asks the user to locate it manually
-    try:
-        if os.path.isfile(os.path.join(os.path.expanduser('~'), 'Documents', 'DOCUMENT.oneshot.txt')):
-            safecodepath = os.path.join(os.path.expanduser('~'), 'Documents', 'DOCUMENT.oneshot.txt')
-        else:
-            safecodepath = os.path.join(os.path.expanduser('~'), 'OneDrive', 'Documents', 'DOCUMENT.oneshot.txt')
-
-        safe_doc = open(safecodepath, 'r', encoding='utf8')
-        read_safe = safe_doc.readlines()
-        safe_doc.close()
-        safe_status = read_safe[len(read_safe)-1].split()[-1]
-
-    except FileNotFoundError:
+def safe_code_finder():  # Locates DOCUMENT.oneshot.txt and returns the location type to variable safe_location
+    if os.path.isfile(os.path.join(os.path.expanduser('~'), 'Documents', 'DOCUMENT.oneshot.txt')):
+        return 'default'
+    elif os.path.isfile(os.path.join(os.path.expanduser('~'), 'OneDrive', 'Documents', 'DOCUMENT.oneshot.txt')):
+        return 'onedrive'
+    else:
         if not os.path.isfile(savepath + '\\safepath.txt'):
             msgbox("Safe Code Path", "DOCUMENT.oneshot.txt not found. Please locate your safe code document.")
             userpath = openfile(filetypes=[("Text Files", ".txt")])
-
             with open(savepath + '\\safepath.txt', 'a') as safedoc:
                 safedoc.write(userpath)
+        return 'custom'
 
-        safe_doc = open(savepath + '\\safepath.txt', 'r', encoding='utf8')
-        safecodepath = safe_doc.readline()
-        safe_doc.close()
-        opensafe = open(safecodepath, 'r', encoding='utf8')
-        read_safe = opensafe.readlines()
-        safe_status = read_safe[len(read_safe) - 1].split()[-1]
 
-    safecode["text"] = safe_status
+def check_safe(location):  # Checks the location given by safe_code_finder for the safe code every two seconds
+    if location == 'default':
+        with open(os.path.join(os.path.expanduser('~'), 'Documents', 'DOCUMENT.oneshot.txt'), 'r', encoding='utf8') as safedoc:
+            safe_data = safedoc.readlines()
+            safecode["text"] = safe_data[len(safe_data)-1].split()[-1]
+    elif location == 'onedrive':
+        with open(os.path.join(os.path.expanduser('~'), 'OneDrive', 'Documents', 'DOCUMENT.oneshot.txt'), 'r', encoding='utf8') as safedoc:
+            safe_data = safedoc.readlines()
+            safecode["text"] = safe_data[len(safe_data)-1].split()[-1]
+    else:
+        safepathdoc =  open(savepath + '\\safepath.txt', 'r')
+        safe_path = safepathdoc.readline()
+        with open(safe_path, 'r', encoding='utf8') as safe_doc:
+            safe_data = safe_doc.readlines()
+            safecode["text"] = safe_data[len(safe_data)-1].split()[-1]
+
     if check_program("_______.exe"):
         clovercheck["text"] = "Clover: Yes"
     else:
         clovercheck["text"] = "Clover: No"
-    if check_program("oneshot.exe"):
-        root.after(1000, safe_code)
-    else:
-        root.after(3000, safe_code)
+
+    root.after(2000, check_safe, safe_location)
 
 
 # Calls 'make_basebutton', passing each button's properties and position to the function
@@ -362,8 +365,13 @@ aboutbtn.grid(row=0, column=1, sticky='e')
 
 
 # Various function calls and variable assignments
+safe_location = safe_code_finder()
+shell = Dispatch('WScript.Shell')
+shortcut = shell.CreateShortCut(check_steamshim().split("steamshim.exe")[0] + r"\oscut.lnk")
+shortcut.Targetpath = check_steamshim()
+shortcut.save()
 data = get_psettings()
-safe_code()
+check_safe(safe_location)
 get_playername()
 check_for_saves()
 root.mainloop()
