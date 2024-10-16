@@ -15,7 +15,7 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
  ## Using the Utility
 
 ### Setting Up Saves
- - To begin with a base list of saves to load from, open the program, select "Import Saves", then select the "anysaves.zip" file that was in the original .zip you downloaded. Your program will automatically load up a list of premade saves that cover both the Any% and NG+ routes.
+ - To begin with a base list of saves to load from, open the program, select "Import Saves", then select the "Any.Pack.by.Kazoeru.zip" file that was in the original .zip you downloaded. Your program will automatically load up a list of premade saves.
  
 
 ### Custom Saves
@@ -25,7 +25,7 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
 
  - Custom saves may be deleted by pressing "Delete Save", and then clicking on the custom save you wish to remove. Deleting a save or clicking on "Delete Save" once more will return the user to default behavior.
 
- - Custom save names may **not** feature the following characters: **/ \ * ? < > : |**
+ - Custom save names may **not** feature the following characters: **/ \ * ? < > " : |**
 
  - Importing an "invalid" .dat file (one that was *not* created by OneShot as a save.dat) will create a new button for the .dat, but will not function for the purposes of loading OneShot saves.
 
@@ -41,7 +41,7 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
 ### Exporting and Importing Custom "savepacks"
  - The "Export Saves" and "Import Saves" buttons, respectively, export your current list of custom saves, and import already created lists of custom saves.
 
- - Clicking "Export Saves" creates a .zip file in the same directory as the program. This .zip file may be renamed as the user sees fit, and is automatically formatted to be used later by:
+ - Clicking "Export Saves" creates a .zip file in the chosen location. This .zip file may be renamed as the user sees fit, and is automatically formatted to be used later by:
 
  - Clicking "Import Saves" prompts the user to locate a valid .zip file previously created by the utility. This will remove all current custom saves, and replace them with those present in the selected savepack.
 
