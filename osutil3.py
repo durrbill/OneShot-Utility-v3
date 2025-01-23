@@ -4,7 +4,6 @@ from os import listdir
 from pathlib import Path
 from zipfile import ZipFile
 from os.path import isfile, join
-from fontTools.misc.textTools import safeEval
 from win32com.client import Dispatch
 from tkinter import filedialog, ttk, simpledialog, Tk, END, Toplevel, StringVar
 from rubymarshal.reader import load as rb_load
@@ -129,7 +128,7 @@ def set_playername():  # Changes the player's name by editing p-settings.dat
 
 def check_program(prog):  # Checks to see if the specified program (oneshot.exe or ______.exe) is running
     cmd = 'tasklist /fi "imagename eq {}"'.format(prog)
-    output = subprocess.check_output(cmd, shell=True).decode()
+    output = subprocess.check_output(cmd, shell=True).decode('cp437')
     if prog.lower() in output.lower(): return True
     else: return False
 
