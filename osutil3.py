@@ -17,7 +17,7 @@ savepath = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming' '\\Oneshot
 root.resizable(False, False)
 root.rowconfigure(0, weight=1)
 root.columnconfigure(0, weight=1)
-root.title("OneShot Utility v3.3.1")
+root.title("OneShot Utility v3.3.2")
 customsavepath = savepath + "\\customsaves\\"
 root.iconbitmap(os.path.join(getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__))), r"ico\icon.ico"))
 psettings_path = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming' '\Oneshot' '\p-settings.dat')
@@ -26,7 +26,7 @@ mainframe = ttk.Frame(root, padding="3 3 3 3")
 mainframe.grid(column=0, row=0, sticky="nsew")
 saveframe = ttk.Frame(root, padding="3 3 3 3")
 saveframe.grid(column=1, row=0, sticky="nsew")
-infolabel = (ttk.Label(mainframe, relief='sunken', text="OneShot Utility v3.3.1", padding="4 3 3 3", width=24))
+infolabel = (ttk.Label(mainframe, relief='sunken', text="OneShot Utility v3.3.2", padding="4 3 3 3", width=24))
 infolabel.grid(sticky="nsew", columnspan=2)
 safecode = ttk.Label(mainframe, text="000000", font=('System', 40))
 safecode.grid(row=7, column=0, columnspan=2, rowspan=2)
@@ -134,7 +134,7 @@ def check_program(prog):  # Checks to see if the specified program (oneshot.exe 
 
 
 def about():  # Displays info about the program
-    msgbox("About", "OneShot Utility v3.3.1 by durrbill\nSome code from Firestrike and hunternet93\n\n"
+    msgbox("About", "OneShot Utility v3.3.2 by durrbill\nSome code from Firestrike and hunternet93\n\n"
                     "For help with utility, visit https://github.com/durrbill/OneShot-Utility-v3")
     delete_mode(False)
 
@@ -191,7 +191,7 @@ def import_saves():  # Imports .zip savepacks created by the utility
             zipname = importfile.split("/")[-1]
             infolabel["text"] = f"Imported {zipname}"
         else:
-            warnbox("Error", "Invalid .zip. Ensure the chosen .zip was created by OneShot Utility v3.3.1.")
+            warnbox("Error", "Invalid .zip. Ensure the chosen .zip was created by OneShot Utility v3.3.2.")
 
 
 def export_saves():  # Exports current saves into a .zip savepack which can be imported later
