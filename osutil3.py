@@ -1,4 +1,6 @@
-import os, shutil, sys, glob, tkinter, psutil, zipfile, signal, json, subprocess
+#!/usr/bin/python3
+
+import os, shutil, sys, glob, tkinter, psutil, zipfile, signal, json, subprocess, math
 from ast import Index
 from os import listdir
 from pathlib import Path
@@ -349,6 +351,54 @@ def check_safe(location):  # Checks the location given by safe_code_finder for t
         clovercheck["text"] = "Clover: No"
 
     root.after(2000, check_safe, safe_location)
+
+
+    #########################################################################################################################
+    #   slap safecode into this and it'll output an array with the following indexs:                                        #
+    #       index 0: minimum number of inputs to input the code                                                             #
+    #       index 1: chance to get a safe code that has that many inputs out of all safe codes                              #
+    #       index 2: sum of all the chances to get that safe code that has that many inputs or less out of all safe codes   #
+    #   returns [0,0,0] if the safecode is invalid                                                                          #
+    #                                                                                                                       #
+    #   Function added by ipie4fun <3                                                                                       #
+    #########################################################################################################################
+def calc_safe_inputs(code):
+    #look up lists so we don't have to recalculate this every time the program is launched.
+    lr_list = [0, 1, 2, 2, 3, 3, 3, 3, 2, 4, 4, 4, 3, 4, 4, 4, 1, 3, 4, 4, 3, 5, 4, 5, 2, 4, 4, 5, 3, 5, 4, 5]
+    chance_list = [0, 2, 2, 10, 26, 61, 152, 348, 784, 1664, 3296, 6134, 10690, 17457, 26790, 38616, 52272, 66462, 79327, 88811, 93200, 91576, 84112, 72074, 57463, 42469, 28954, 18094, 10274, 5236, 2355, 912, 292, 72, 12, 1]
+    culm_chance_list = [0, 2, 4, 14, 40, 101, 253, 601, 1385, 3049, 6345, 12479, 23169, 40626, 67416, 106032, 158304, 224766, 304093, 392904, 486104, 577680, 661792, 733866, 791329, 833798, 862752, 880846, 891120, 896356, 898711, 899623, 899915, 899987, 899999, 900000]
+
+    #Inits
+    inputs = 0
+    c_string = str(code)
+    lr_index = 0
+
+    #Low effort input validation, just in case.
+    if len(c_string) > 6:
+        return [0,0,0]
+    try:
+        int(c_string)
+    except:
+        return [0,0,0]
+
+    #Actual calculations
+    for h in range(len(c_string)):
+        value = int(c_string[h]) #not always 6 characters
+        #lr_index (used for left/right input count)
+        if value != 0:
+            offset = 6-len(c_string)
+            lr_index = lr_index + pow(2, (5-offset-h)) #2^(5-off-h)
+        #flip if 6-10 (used for up/down input count)
+        if value > 5:
+            value = 10-value
+        inputs = inputs + value
+    inputs = inputs + lr_list[lr_index%32]
+
+    #format output
+    culm_total = culm_chance_list[len(culm_chance_list)-1]
+    chance = chance_list[inputs]/culm_total
+    culm_chance = culm_chance_list[inputs]/culm_total
+    return [inputs, chance, culm_chance]
 
 
 # Calls 'make_basebutton', passing each button's properties and position to the function
