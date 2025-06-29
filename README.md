@@ -15,7 +15,7 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
  ## Using the Utility
 
 ### Setting Up Saves
- - To begin with a base list of saves to load from, open the program, select "Import Saves", then select the "Any.Pack.by.Kazoeru.zip" file that was in the original .zip you downloaded. Your program will automatically load up a list of premade saves.
+ - To begin with a base list of saves to load from, open the program, select "Import Saves", then select the "Any.Pack.by.kaxymonoxy.zip" file you can download from the releases page. Your program will automatically load up a list of premade saves.
  
 
 ### Custom Saves
@@ -52,10 +52,9 @@ Special thanks to Kazoeru and GIRakaCHEEZER <3
  - To change your player's "name" in OneShot, simply type the desired name into the textbox to the right of the "Set Player Name" button, then press said button.
 
 ## Installation/Necessary Files
-OneShot Utility v3.3.1 will create up to five elements, all in OneShot's save directory (%appdata%\Roaming\Oneshot\)
+OneShot Utility v3.4 will create up to four elements, all in OneShot's save directory (%appdata%\Roaming\Oneshot\)
 - "customsaves", a folder that stores any created custom saves
 - "customsaves.json", a file that stores relevant data for custom saves to function
-- "safepath.txt", which stores the location of DOCUMENT.oneshot.txt, if said file does not exist in expected default locations
 - "steamshimlocation.txt", which stores the location of steamshim.exe, if said file does not exist in expected default locations
 - "loadstate.txt", an empty text file that allows the program to remember the user's auto-loading preference on startup
 
